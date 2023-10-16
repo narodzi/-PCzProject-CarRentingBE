@@ -20,5 +20,6 @@ def startup_db_client():
 def shutdown_db_client():
     app.mongodb_client.close()
 
+##testuje pushowanie, prosze to usunac pozniej ~narodzi
 
 app.include_router(car_router, tags=["cars"], prefix="/cars")
