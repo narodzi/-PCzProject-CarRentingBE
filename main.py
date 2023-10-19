@@ -5,7 +5,7 @@ from pymongo import MongoClient
 
 from config import MONGO_URL, DATABASE_NAME
 from routers.car import router as car_router
-
+from routers.user import router as user_router
 app = FastAPI()
 
 
@@ -22,3 +22,4 @@ def shutdown_db_client():
 
 
 app.include_router(car_router, tags=["cars"], prefix="/cars")
+app.include_router(user_router, tags=["users"], prefix="/users")
