@@ -9,7 +9,7 @@ from models.car import Car, UpdateCar
 router = APIRouter()
 
 
-@router.get("/cars", response_description="List all cars", response_model=List[Car])
+@router.get("/car/all", response_description="List all cars", response_model=List[Car])
 def read_cars(request: Request):
     cars = list(request.app.database['Cars'].find(limit=1000))
     return cars
@@ -23,7 +23,7 @@ def read_car(request: Request, id: str):
     return car
 
 
-@router.post("/addcar", response_model=Car)
+@router.post("/car/add", response_model=Car)
 def add_car(request: Request, car: Car = Body(...)):
     car = jsonable_encoder(car)
     new_car = request.app.database['Cars'].insert_one(car)
