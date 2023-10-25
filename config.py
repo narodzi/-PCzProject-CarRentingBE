@@ -1,2 +1,2 @@
-MONGO_URL = r'connection_string'
+MONGO_URL = r'mongodb://localhost:27017'
 DATABASE_NAME = 'CarRenting'
