@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request, Response, Body, status
 
 from fastapi.encoders import jsonable_encoder
 
-from models.car import Car
+from models.car import Car, UpdateCar
 
 router = APIRouter()
 
