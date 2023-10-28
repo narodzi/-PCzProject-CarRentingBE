@@ -1,5 +1,6 @@
 from typing import Union
 
+import uvicorn
 from fastapi import FastAPI
 from pymongo import MongoClient
 
