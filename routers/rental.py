@@ -68,7 +68,7 @@ def delete_rental(request: Request, id: str, response: Response):
         return "Rental not found"
 
 
-@router.get("/car/{id}", response_description="Show a car")
+@router.get("/car/{id}", response_description="Show rentals of a car")
 def get_car(request: Request, id: str):
     rentals = list(request.app.database['Rental'].find(
         {"car_id": id},
@@ -77,7 +77,7 @@ def get_car(request: Request, id: str):
     return rentals
 
 
-@router.get("/user/{id}", response_description="Show a car")
+@router.get("/user/{id}", response_description="Show rentals of a user")
 def get_car(request: Request, id: str):
     rentals = list(request.app.database['Rental'].find(
         {"user_id": id},
