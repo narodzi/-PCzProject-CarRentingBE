@@ -9,43 +9,43 @@ from models.rental import Rental, UpdateRental
 router = APIRouter()
 
 
-@router.get("/rental/all", response_description="List all rentals", response_model=List[Rental])
+@router.get("/all", response_description="List all rentals", response_model=List[Rental])
 def read_rentals(request: Request):
-    rentals = list(request.app.database['Rentals'].find(limit=1000))
+    rentals = list(request.app.database['Rental'].find(limit=1000))
     return rentals
 
 
-@router.get("/rental/{id}", response_description="Show a rental", response_model=Rental)
+@router.get("/{id}", response_description="Show a rental", response_model=Rental)
 def read_rental(request: Request, id: str):
-    rental = list(request.app.database['Rentals'].find_one(
+    rental = list(request.app.database['Rental'].find_one(
         {"_id": id}
     ))
     return rental
 
 
-@router.post("/rental/add", response_model=Rental)
+@router.post("/add", response_model=Rental)
 def add_rental(request: Request, rental: Rental = Body(...)):
     rental = jsonable_encoder(rental)
-    new_rental = request.app.database['Rentals'].insert_one(rental)
-    create_rental = request.app.database['Rentals'].find_one(
+    new_rental = request.app.database['Rental'].insert_one(rental)
+    create_rental = request.app.database['Rental'].find_one(
         {"_id": new_rental.inserted_id}
     )
     return create_rental
 
 
-@router.put("/rental/{id}", response_description="Update a rental", response_model=UpdateRental)
+@router.put("/{id}", response_description="Update a rental", response_model=UpdateRental)
 def update_rental(request: Request, id: str, rental: UpdateRental = Body(...)):
     rental = {k: v for k, v in rental.dict().items() if v is not None}
 
     if len(rental) >= 1:
-        updated_rental = request.app.database['Rentals'].update_one(
+        updated_rental = request.app.database['Rental'].update_one(
             {"_id": id}, {"$set": rental}
         )
 
         if updated_rental.modified_count == 0:
             return "Rental not found"
 
-        exit_rental = request.app.database['Rentals'].find_one(
+        exit_rental = request.app.database['Rental'].find_one(
             {"_id": id}
         )
 
@@ -55,9 +55,9 @@ def update_rental(request: Request, id: str, rental: UpdateRental = Body(...)):
         return "Invalid input"
 
 
-@router.delete("/rental/{id}", response_description="Delete a rental")
+@router.delete("/{id}", response_description="Delete a rental")
 def delete_rental(request: Request, id: str, response: Response):
-    deleted_rental = request.app.database['Rentals'].delete_one(
+    deleted_rental = request.app.database['Rental'].delete_one(
         {"_id": id}
     )
 
@@ -66,3 +66,21 @@ def delete_rental(request: Request, id: str, response: Response):
         return response
     else:
         return "Rental not found"
+
+
+@router.get("/car/{id}", response_description="Show rentals of a car")
+def get_car(request: Request, id: str):
+    rentals = list(request.app.database['Rental'].find(
+        {"car_id": id},
+        limit=1000
+    ))
+    return rentals
+
+
+@router.get("/user/{id}", response_description="Show rentals of a user")
+def get_car(request: Request, id: str):
+    rentals = list(request.app.database['Rental'].find(
+        {"user_id": id},
+        limit=1000
+    ))
+    return rentals
