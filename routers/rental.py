@@ -17,9 +17,9 @@ def read_rentals(request: Request):
 
 @router.get("/{id}", response_description="Show a rental", response_model=Rental)
 def read_rental(request: Request, id: str):
-    rental = list(request.app.database['Rental'].find_one(
+    rental = request.app.database['Rental'].find_one(
         {"_id": id}
-    ))
+    )
     return rental
 
 
