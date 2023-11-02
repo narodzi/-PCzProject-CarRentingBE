@@ -8,6 +8,7 @@ from config import MONGO_URL, DATABASE_NAME
 from routers.car import router as car_router
 from routers.user import router as user_router
 from routers.rental import router as rental_router
+
 app = FastAPI()
 
 
