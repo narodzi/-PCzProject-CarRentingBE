@@ -9,7 +9,7 @@ from models.rental import Rental, UpdateRental
 router = APIRouter()
 
 
-@router.get("/all", response_description="List all rentals", response_model=List[Rental])
+@router.get("/", response_description="List all rentals", response_model=List[Rental])
 def read_rentals(request: Request):
     rentals = list(request.app.database['Rental'].find(limit=1000))
     return rentals
