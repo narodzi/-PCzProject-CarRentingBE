@@ -23,14 +23,15 @@ def read_maintenance(request: Request, id: str):
     return maintenance
 
 
-@router.post("/add", response_model=Maintenance)
+@router.post("/", response_model=Maintenance)
 def add_maintenance(request: Request, maintenance: Maintenance = Body(...)):
     maintenance = jsonable_encoder(maintenance)
+    maintenance['_id'] = str(uuid.uuid4())
     new_maintenance = request.app.database['Maintenance'].insert_one(maintenance)
-    create_maintenance = request.app.database['Maintenance'].find_one(
+    created_maintenance = request.app.database['Maintenance'].find_one(
         {"_id": new_maintenance.inserted_id}
     )
-    return create_maintenance
+    return created_maintenance
 
 
 @router.put("/{id}", response_description="Update a maintenance", response_model=UpdateMaintenance)
