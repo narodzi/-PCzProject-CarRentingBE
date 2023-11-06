@@ -69,7 +69,7 @@ def delete_rental(request: Request, id: str, response: Response):
 
 
 @router.get("/car/{id}", response_description="Show rentals of a car")
-def get_car(request: Request, id: str):
+def get_rentals_of_car(request: Request, id: str):
     rentals = list(request.app.database['Rental'].find(
         {"car_id": id},
         limit=1000
@@ -78,7 +78,7 @@ def get_car(request: Request, id: str):
 
 
 @router.get("/user/{id}", response_description="Show rentals of a user")
-def get_car(request: Request, id: str):
+def get_rentals_of_user(request: Request, id: str):
     rentals = list(request.app.database['Rental'].find(
         {"user_id": id},
         limit=1000
