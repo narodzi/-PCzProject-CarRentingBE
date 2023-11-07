@@ -24,13 +24,14 @@ def read_rental(request: Request, id: str):
 
 
 @router.post("/", response_model=Rental)
-def add_rental(request: Request, rental: Rental = Body(...)):
+def add_rental(request: Request, rental: RentalUpdate = Body(...)):
     rental = jsonable_encoder(rental)
+    rental['_id'] = str(uuid.uuid4())
     new_rental = request.app.database['Rental'].insert_one(rental)
-    create_rental = request.app.database['Rental'].find_one(
+    created_rental = request.app.database['Rental'].find_one(
         {"_id": new_rental.inserted_id}
     )
-    return create_rental
+    return created_rental
 
 
 @router.put("/{id}", response_description="Update a rental", response_model=UpdateRental)
