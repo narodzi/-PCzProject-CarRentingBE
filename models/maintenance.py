@@ -8,7 +8,7 @@ class Maintenance(BaseModel):
     car_id: str = Field(...)
     date: str = Field(...)
     type: str = Field(...)
-    description: int = Field(...)
+    description: str = Field(...)
 
     class Config:
         allow_population_by_field_name = True

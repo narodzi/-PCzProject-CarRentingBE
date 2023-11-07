@@ -23,7 +23,7 @@ def read_rental(request: Request, id: str):
     return rental
 
 
-@router.post("/add", response_model=Rental)
+@router.post("/", response_model=Rental)
 def add_rental(request: Request, rental: Rental = Body(...)):
     rental = jsonable_encoder(rental)
     new_rental = request.app.database['Rental'].insert_one(rental)

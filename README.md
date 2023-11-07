@@ -18,7 +18,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 4300
 ### Keycloak
 To create keycloak instance on docker run this command:
 ```
-docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:22.0.4 start-dev
+docker run -d -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:22.0.4 start-dev
 ```
 
 ### MongoDB
