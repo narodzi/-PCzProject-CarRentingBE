@@ -19,8 +19,8 @@ class Maintenance(BaseModel):
         }
 
 
-class UpdateMaintenance(BaseModel):
+class MaintenanceUpdate(BaseModel):
     car_id: str = Field(...)
     date: str = Field(...)
     type: str = Field(...)
-    description: int = Field(...)
+    description: str = Field(...)
