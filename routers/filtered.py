@@ -1,23 +1,16 @@
-import http.client
-import json
-import uuid
-from typing import List
+from fastapi import APIRouter, Request, Body
 
-from fastapi import APIRouter, Request, Response, Body, status, Query
+from models.filtered import RentalSearch, RentalSearchResult
 
-from fastapi.encoders import jsonable_encoder
-from starlette.responses import JSONResponse
-from starlette.status import HTTP_204_NO_CONTENT
-from models.filtered import RentalSearchDto, RentalSearchResultDto
-
-from isodate import parse_date, parse_datetime
+from isodate import parse_datetime
 
 router = APIRouter()
 
 
-@router.post("/test2", response_description="Show a car")
-def get_car(request: Request, params: RentalSearchDto = Body(...)):
+@router.post("/", response_description="Show a car")
+def get_car(request: Request, params: RentalSearch = Body(...)):
     query = {}
+
     if params.number_of_seats is not None:
         query["number_of_seats"] = params.number_of_seats
     if params.brand is not None:
@@ -47,14 +40,14 @@ def get_car(request: Request, params: RentalSearchDto = Body(...)):
     start_date = (parse_datetime(params.start_date)).date()
     end_date = (parse_datetime(params.end_date)).date()
     array = [x['car_id'] for x in rentals if not (((parse_datetime(x['start_date'])).date() - end_date).days > 0 or (
-                (parse_datetime(x['end_date'])).date() - start_date).days < 0)]
+            (parse_datetime(x['end_date'])).date() - start_date).days < 0)]
 
     filtered_cars = [car for car in cars if car['_id'] not in array]
 
     result_dto_list = [
-        RentalSearchResultDto(
+        RentalSearchResult(
             _id=item['_id'],
-            img_url=item['image_url'],
+            image_url=item['image_url'],
             brand=item['brand'],
             model=item['model'],
             number_of_seats=item['number_of_seats'],

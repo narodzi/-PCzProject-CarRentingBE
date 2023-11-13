@@ -1,10 +1,9 @@
 from pydantic import BaseModel, Field
-from decimal import Decimal
 
 
-class RentalSearchResultDto(BaseModel):
-    id: str = Field(alias='_id', )
-    img_url: str = Field(...)
+class RentalSearchResult(BaseModel):
+    id: str = Field(..., alias='_id', )
+    image_url: str = Field(...)
     brand: str = Field(...)
     model: str = Field(...)
     number_of_seats: int = Field(...)
@@ -19,10 +18,9 @@ class RentalSearchResultDto(BaseModel):
     price_overall: float = Field(...)
 
 
-
-class RentalSearchDto(BaseModel):
-    start_date: str | None = Field(None)
-    end_date: str | None = Field(None)
+class RentalSearch(BaseModel):
+    start_date: str = Field(...)
+    end_date: str = Field(...)
     brand: str | None = Field(None)
     type: str | None = Field(None)
     earliest_production_year: int | None = Field(None)
@@ -32,9 +30,5 @@ class RentalSearchDto(BaseModel):
     number_of_seats: int | None = Field(None)
     number_of_doors: int | None = Field(None)
     minimal_trunk_size: int | None = Field(None)
-    minimal_price: int | None = Field(None)
-    maximal_price: int | None = Field(None)
-
-
-
-
+    minimal_price: float | None = Field(None)
+    maximal_price: float | None = Field(None)
