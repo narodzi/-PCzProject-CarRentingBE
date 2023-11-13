@@ -8,6 +8,7 @@ from config import MONGO_URL, DATABASE_NAME
 from routers.car import router as car_router
 from routers.user import router as user_router
 from routers.rental import router as rental_router
+from routers.filtered import router as filtered_router
 from routers.maintenance import router as maintenance_router
 
 app = FastAPI()
@@ -28,4 +29,5 @@ def shutdown_db_client():
 app.include_router(car_router, tags=["cars"], prefix="/cars")
 app.include_router(user_router, tags=["users"], prefix="/users")
 app.include_router(rental_router, tags=["rentals"], prefix="/rentals")
+app.include_router(filtered_router, tags=["filtered"], prefix="/filtered")
 app.include_router(maintenance_router, tags=["maintenances"], prefix="/maintenances")
