@@ -1,4 +1,6 @@
 from decimal import Decimal
+
+import bson
 from pydantic import BaseModel, Field
 
 
@@ -8,7 +10,7 @@ class Rental(BaseModel):
     user_id: str = Field(...)
     start_date: str = Field(...)
     end_date: str = Field(...)
-    price_overall: Decimal = Field(...)
+    price_overall: int = Field(...)
     is_canceled: bool = Field(...)
     penalty: Decimal = Field(...)
 
@@ -28,11 +30,10 @@ class Rental(BaseModel):
         }
 
 
-class UpdateRental(BaseModel):
+class RentalUpdate(BaseModel):
     car_id: str = Field(...)
-    user_id: str = Field(...)
     start_date: str = Field(...)
     end_date: str = Field(...)
-    price_overall: Decimal = Field(...)
-    status: str = Field(...)
+    price_overall: int = Field(...)
+    is_canceled: bool = Field(...)
     penalty: int = Field(...)

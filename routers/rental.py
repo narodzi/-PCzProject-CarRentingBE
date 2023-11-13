@@ -1,10 +1,13 @@
+import uuid
 from typing import List
 
 from fastapi import APIRouter, Request, Response, Body, status
 
 from fastapi.encoders import jsonable_encoder
+from starlette.responses import JSONResponse
+from starlette.status import HTTP_204_NO_CONTENT
 
-from models.rental import Rental, UpdateRental
+from models.rental import Rental, RentalUpdate
 
 router = APIRouter()
 
@@ -20,6 +23,8 @@ def read_rental(request: Request, id: str):
     rental = request.app.database['Rental'].find_one(
         {"_id": id}
     )
+    if not rental:
+        return JSONResponse(content={"detail": f"Rental {id} does not exist"}, status_code=404)
     return rental
 
 
@@ -34,26 +39,20 @@ def add_rental(request: Request, rental: RentalUpdate = Body(...)):
     return created_rental
 
 
-@router.put("/{id}", response_description="Update a rental", response_model=UpdateRental)
-def update_rental(request: Request, id: str, rental: UpdateRental = Body(...)):
+@router.put("/{id}", response_description="Update a rental", response_model=RentalUpdate)
+def update_rental(request: Request, id: str, rental: RentalUpdate = Body(...)):
     rental = {k: v for k, v in rental.dict().items() if v is not None}
 
-    if len(rental) >= 1:
-        updated_rental = request.app.database['Rental'].update_one(
-            {"_id": id}, {"$set": rental}
-        )
+    update_result = request.app.database['Rental'].update_one(
+        {"_id": id}, {"$set": rental}
+    )
 
-        if updated_rental.modified_count == 0:
-            return "Rental not found"
-
-        exit_rental = request.app.database['Rental'].find_one(
-            {"_id": id}
-        )
-
-        return exit_rental
-
-    else:
-        return "Invalid input"
+    if update_result.modified_count == 1:
+        update_result = request.app.database['Rental'].find_one({'_id': id})
+        return update_result
+    if update_result.matched_count == 1:
+        return JSONResponse(content={"detail": f"Rental {id} has not been updated"}, status_code=400)
+    return JSONResponse(content={"detail": f"Rental {id} not found"}, status_code=404)
 
 
 @router.delete("/{id}", response_description="Delete a rental")
@@ -61,27 +60,24 @@ def delete_rental(request: Request, id: str, response: Response):
     deleted_rental = request.app.database['Rental'].delete_one(
         {"_id": id}
     )
-
-    if deleted_rental.deleted_count == 1:
-        response.status_code = status.HTTP_204_NO_CONTENT
-        return response
-    else:
-        return "Rental not found"
+    if deleted_rental.deleted_count == 0:
+        return JSONResponse(content={"detail": f"Rental {id} does not exist"}, status_code=404)
+    return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.get("/car/{id}", response_description="Show rentals of a car")
-def get_car(request: Request, id: str):
+@router.get("/car/{car_id}", response_description="Show rentals of a car")
+def get_rentals_of_car(request: Request, car_id: str):
     rentals = list(request.app.database['Rental'].find(
-        {"car_id": id},
+        {"car_id": car_id},
         limit=1000
     ))
     return rentals
 
 
-@router.get("/user/{id}", response_description="Show rentals of a user")
-def get_car(request: Request, id: str):
+@router.get("/user/{user_id}", response_description="Show rentals of a user")
+def get_rentals_of_user(request: Request, user_id: str):
     rentals = list(request.app.database['Rental'].find(
-        {"user_id": id},
+        {"user_id": user_id},
         limit=1000
     ))
     return rentals
