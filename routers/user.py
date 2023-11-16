@@ -57,3 +57,17 @@ def delete_user(request: Request, id: str):
     if deleted_user.deleted_count == 0:
         return JSONResponse(content={"detail": f"User {id} does not exist"}, status_code=404)
     return Response(status_code=HTTP_204_NO_CONTENT)
+
+
+@router.put("/{id}/addMoney", response_description="Adding money to the user")
+def add_money(request: Request, id: str, amount: float):
+    user = request.app.database['Users'].find_one(
+        {"_id": id}
+    )
+    user["wallet_balance"] += amount
+    request.app.database['Users'].update_one(
+        {"_id": id},
+        {"$set": {"wallet_balance": user["wallet_balance"]}}
+    )
+    return {"message": f"Successfully added {amount} to user's wallet. New balance: {user['wallet_balance']}"}
+
