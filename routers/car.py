@@ -67,7 +67,6 @@ def delete_car(request: Request, id: str):
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-
 @router.get("/limited/")
 def get_cars(request: Request, count: int, filtered: str):
     if filtered == "naprawa":
@@ -84,5 +83,3 @@ def get_cars(request: Request, count: int, filtered: str):
         cars = list(request.app.database['Cars'].find(limit=count))
         return cars
     return JSONResponse(content={"Not found"}, status_code=404)
-
-
