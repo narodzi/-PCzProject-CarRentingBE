@@ -65,3 +65,24 @@ def delete_car(request: Request, id: str):
     if deleted_car.deleted_count == 0:
         return JSONResponse(content={"detail": f"Car {id} does not exist"}, status_code=404)
     return Response(status_code=HTTP_204_NO_CONTENT)
+
+
+
+@router.get("/limited/")
+def get_cars(request: Request, count: int, filtered: str):
+    if filtered == "naprawa":
+        maintenances = list(request.app.database['Maintenance'].find(limit=count))
+        car_ids = [maintenance['car_id'] for maintenance in maintenances]
+        cars = list(request.app.database['Cars'].find({"_id": {"$in": car_ids}}))
+        return cars
+    elif filtered == "wypozyczone":
+        rentals = list(request.app.database['Rental'].find(limit=count))
+        car_ids = [rental['car_id'] for rental in rentals]
+        cars = list(request.app.database['Cars'].find({"_id": {"$in": car_ids}}))
+        return cars
+    elif filtered == "wszystkie":
+        cars = list(request.app.database['Cars'].find(limit=count))
+        return cars
+    return JSONResponse(content={"Not found"}, status_code=404)
+
+
