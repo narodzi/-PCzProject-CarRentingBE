@@ -1,7 +1,6 @@
-from typing import Union
-
-import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from pymongo import MongoClient
 
 from config import MONGO_URL, DATABASE_NAME
@@ -12,6 +11,18 @@ from routers.filtered import router as filtered_router
 from routers.maintenance import router as maintenance_router
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:4200"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
 @app.on_event("startup")
