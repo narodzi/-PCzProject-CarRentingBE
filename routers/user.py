@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Response, Body, status
+from fastapi import APIRouter, Request, Response, Body, status, HTTPException
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_204_NO_CONTENT
 
@@ -59,6 +59,22 @@ def delete_user(request: Request, id: str):
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
+@router.put("/{id}/subtractMoney", response_description="Subtract money to the user")
+def subtract_money(request: Request, id: str, amount: float):
+    user = request.app.database['Users'].find_one(
+        {"_id": id}
+    )
+    if user["wallet_balance"] >= amount:
+        user["wallet_balance"] -= amount
+        request.app.database['Users'].update_one(
+            {"_id": id},
+            {"$set": {"wallet_balance": user["wallet_balance"]}}
+        )
+        return {"message": f"Successfully subtract {amount} to user's wallet. New balance: {user['wallet_balance']}"}
+    else:
+        raise HTTPException(status_code=400, detail="Insufficient balance")
+
+
 @router.put("/{id}/addMoney", response_description="Adding money to the user")
 def add_money(request: Request, id: str, amount: float):
     user = request.app.database['Users'].find_one(
@@ -70,4 +86,3 @@ def add_money(request: Request, id: str, amount: float):
         {"$set": {"wallet_balance": user["wallet_balance"]}}
     )
     return {"message": f"Successfully added {amount} to user's wallet. New balance: {user['wallet_balance']}"}
-
