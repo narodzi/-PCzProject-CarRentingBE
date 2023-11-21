@@ -14,14 +14,14 @@ router = APIRouter()
 
 
 @router.get("/", response_description="List all rentals", response_model=List[Rental],
-            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def read_rentals(request: Request):
     rentals = list(request.app.database['Rental'].find(limit=1000))
     return rentals
 
 
 @router.get("/{id}", response_description="Show a rental", response_model=Rental,
-            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def read_rental(request: Request, id: str):
     rental = request.app.database['Rental'].find_one(
         {"_id": id}
@@ -31,7 +31,8 @@ def read_rental(request: Request, id: str):
     return rental
 
 
-@router.post("/", response_model=Rental, dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.post("/", response_model=Rental, description="Must be role employee",
+             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def add_rental(request: Request, rental: RentalUpdate = Body(...)):
     rental = jsonable_encoder(rental)
     rental['_id'] = str(uuid.uuid4())
@@ -43,7 +44,7 @@ def add_rental(request: Request, rental: RentalUpdate = Body(...)):
 
 
 @router.put("/{id}", response_description="Update a rental", response_model=RentalUpdate,
-            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def update_rental(request: Request, id: str, rental: RentalUpdate = Body(...)):
     rental = {k: v for k, v in rental.dict().items() if v is not None}
 
@@ -60,7 +61,7 @@ def update_rental(request: Request, id: str, rental: RentalUpdate = Body(...)):
 
 
 @router.delete("/{id}", response_description="Delete a rental",
-               dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+               description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def delete_rental(request: Request, id: str, response: Response):
     deleted_rental = request.app.database['Rental'].delete_one(
         {"_id": id}
@@ -71,7 +72,7 @@ def delete_rental(request: Request, id: str, response: Response):
 
 
 @router.get("/car/{car_id}", response_description="Show rentals of a car",
-            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_rentals_of_car(request: Request, car_id: str):
     rentals = list(request.app.database['Rental'].find(
         {"car_id": car_id},
@@ -80,7 +81,8 @@ def get_rentals_of_car(request: Request, car_id: str):
     return rentals
 
 
-@router.get("/user/{user_id}", response_description="Show rentals of a user")
+@router.get("/user/{user_id}", description="Must be role employee or the same user",
+            response_description="Show rentals of a user")
 def get_rentals_of_user(request: Request, user_id: str):
     user_access(request, user_id)
     rentals = list(request.app.database['Rental'].find(
