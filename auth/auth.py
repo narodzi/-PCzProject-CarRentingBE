@@ -15,6 +15,8 @@ def get_bearer_token(request: StarletteRequest) -> str:
     :param request: request to get the token from
     :return: token without the "Bearer " prefix
     """
+    if os.getenv("DEBUG") == "1":
+        return ""
     authorization_header = request.headers.get("authorization")
     if authorization_header:
         return authorization_header.replace("Bearer ", "")
@@ -28,12 +30,13 @@ def role_access(roles: List[Role]):
     :return: function for validation
     """
     def authorize(jwt_token: str = Depends(get_bearer_token)):
+        if os.getenv("DEBUG") == "1":
+            return
         options = {"verify_signature": False}
         decoded_data = jwt.decode(jwt_token, algorithms=["RS256"], options=options)
         for role in roles:
             if role.name.lower() in decoded_data['realm_access']['roles']:
                 return
-        if os.getenv("DEBUG") != "1":
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     return authorize
 
@@ -45,6 +48,8 @@ def user_access(request: StarletteRequest, user_id: str):
     :param request: request to check
     :param user_id: user id to check
     """
+    if os.getenv("DEBUG") == "1":
+        return
     jwt_token = get_bearer_token(request)
     options = {"verify_signature": False}
     decoded_data = jwt.decode(jwt_token, algorithms=["RS256"], options=options)
