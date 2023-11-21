@@ -1,9 +1,7 @@
 from uuid import UUID
-
 from fastapi import APIRouter, Request, Response, Body, status, HTTPException, Depends
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_204_NO_CONTENT
-
 from auth.auth import role_access, user_access, get_bearer_token
 from const.roles import Role
 from models.user import User, UserUpdate
