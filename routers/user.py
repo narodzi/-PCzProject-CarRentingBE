@@ -1,8 +1,8 @@
+from uuid import UUID
 from fastapi import APIRouter, Request, Response, Body, status, HTTPException, Depends
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_204_NO_CONTENT
-
-from auth.role_access import role_access
+from auth.auth import role_access, user_access, get_bearer_token
 from const.roles import Role
 from models.user import User, UserUpdate
 
@@ -17,7 +17,7 @@ def get_users(request: Request):
 
 @router.get("/{id}", response_description="Show a user")
 def get_user(request: Request, id: str):
-    # TODO: Check if its an id of a user thats making this request
+    user_access(request, id)
     user = request.app.database['Users'].find_one(
         {"_id": id}
     )
@@ -65,7 +65,7 @@ def delete_user(request: Request, id: str):
 
 @router.put("/{id}/subtractMoney", response_description="Subtract money to the user")
 def subtract_money(request: Request, id: str, amount: float):
-    # TODO: Check if its an id of a user thats making this request
+    user_access(request, id)
     user = request.app.database['Users'].find_one(
         {"_id": id}
     )
@@ -82,7 +82,7 @@ def subtract_money(request: Request, id: str, amount: float):
 
 @router.put("/{id}/addMoney", response_description="Adding money to the user")
 def add_money(request: Request, id: str, amount: float):
-    # TODO: Check if its an id of a user thats making this request
+    user_access(request, id)
     user = request.app.database['Users'].find_one(
         {"_id": id}
     )
