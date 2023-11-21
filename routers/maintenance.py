@@ -14,14 +14,14 @@ router = APIRouter()
 
 
 @router.get("/", response_description="List all maintenances", response_model=List[Maintenance],
-            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenances(request: Request):
     maintenances = list(request.app.database['Maintenance'].find(limit=1000))
     return maintenances
 
 
 @router.get("/{id}", response_description="Show a maintenance", response_model=Maintenance,
-            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenance(request: Request, id: str):
     maintenance = request.app.database['Maintenance'].find_one(
         {"_id": id}
@@ -31,7 +31,8 @@ def get_maintenance(request: Request, id: str):
     return maintenance
 
 
-@router.post("/", response_model=Maintenance, dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.post("/", response_model=Maintenance, description="Must be role employee",
+             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def add_maintenance(request: Request, maintenance: Maintenance = Body(...)):
     maintenance = jsonable_encoder(maintenance)
     maintenance['_id'] = str(uuid.uuid4())
@@ -43,7 +44,7 @@ def add_maintenance(request: Request, maintenance: Maintenance = Body(...)):
 
 
 @router.put("/{id}", response_description="Update a maintenance", response_model=MaintenanceUpdate,
-            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def update_maintenance(request: Request, id: str, maintenance: MaintenanceUpdate = Body(...)):
     maintenance = {k: v for k, v in maintenance.model_dump().items() if v is not None}
 
@@ -60,7 +61,7 @@ def update_maintenance(request: Request, id: str, maintenance: MaintenanceUpdate
 
 
 @router.delete("/{id}", response_description="Delete a maintenance",
-               dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+               description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def delete_maintenance(request: Request, id: str):
     deleted_maintenance = request.app.database['Maintenance'].delete_one(
         {"_id": id}
@@ -71,7 +72,7 @@ def delete_maintenance(request: Request, id: str):
 
 
 @router.get("/car/{car_id}", response_description="Show maintenances of a car",
-            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenances_of_car(request: Request, car_id: str):
     maintenances = list(request.app.database['Maintenance'].find(
         {"car_id": car_id},

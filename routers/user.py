@@ -9,13 +9,14 @@ from models.user import User, UserUpdate
 router = APIRouter()
 
 
-@router.get("/", response_description="List all users", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.get("/", response_description="List all users", description="Must be role employee",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_users(request: Request):
     users = list(request.app.database['Users'].find(limit=1000))
     return users
 
 
-@router.get("/{id}", response_description="Show a user")
+@router.get("/{id}", description="Must be role employee or the same user", response_description="Show a user")
 def get_user(request: Request, id: str):
     user_access(request, id)
     user = request.app.database['Users'].find_one(
@@ -37,7 +38,8 @@ def add_user(request: Request, user: User = Body(...)):
     return created_user
 
 
-@router.put("/{id}", response_description="Update a user", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.put("/{id}", response_description="Update a user", description="Must be role employee",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def update_user(request: Request, id: str, user: UserUpdate = Body(...)):
     user_data = user.dict(exclude_unset=True)
 
@@ -53,7 +55,8 @@ def update_user(request: Request, id: str, user: UserUpdate = Body(...)):
     return JSONResponse(content={"detail": f"User {id} not found"}, status_code=404)
 
 
-@router.delete("/{id}", response_description="Delete a user", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.delete("/{id}", response_description="Delete a user", description="Must be role employee",
+               dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def delete_user(request: Request, id: str):
     deleted_user = request.app.database['Users'].delete_one(
         {"_id": id}
@@ -63,7 +66,8 @@ def delete_user(request: Request, id: str):
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.put("/{id}/subtractMoney", response_description="Subtract money to the user")
+@router.put("/{id}/subtractMoney", description="Must be role employee or the same user",
+            response_description="Subtract money to the user")
 def subtract_money(request: Request, id: str, amount: float):
     user_access(request, id)
     user = request.app.database['Users'].find_one(
@@ -80,7 +84,8 @@ def subtract_money(request: Request, id: str, amount: float):
         raise HTTPException(status_code=400, detail="Insufficient balance")
 
 
-@router.put("/{id}/addMoney", response_description="Adding money to the user")
+@router.put("/{id}/addMoney", description="Must be role employee or the same user",
+            response_description="Adding money to the user")
 def add_money(request: Request, id: str, amount: float):
     user_access(request, id)
     user = request.app.database['Users'].find_one(
