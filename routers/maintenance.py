@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_204_NO_CONTENT
 
-from auth.role_access import role_access
+from auth.auth import role_access
 from const.roles import Role
 from models.maintenance import Maintenance, MaintenanceUpdate
 

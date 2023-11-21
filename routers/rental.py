@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_204_NO_CONTENT
 
-from auth.role_access import role_access
+from auth.auth import role_access, user_access
 from const.roles import Role
 from models.rental import Rental, RentalUpdate
 
@@ -83,7 +83,7 @@ def get_rentals_of_car(request: Request, car_id: str):
 
 @router.get("/user/{user_id}", response_description="Show rentals of a user")
 def get_rentals_of_user(request: Request, user_id: str):
-    # TODO: Check here if this is the same user that asks for its rentals
+    user_access(request, user_id)
     rentals = list(request.app.database['Rental'].find(
         {"user_id": user_id},
         limit=1000
