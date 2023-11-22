@@ -1,24 +1,27 @@
 import uuid
 from typing import List
 
-from fastapi import APIRouter, Request, Response, Body
+from fastapi import APIRouter, Request, Response, Body, Depends
 
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_204_NO_CONTENT
-
+from auth.auth import role_access
+from const.roles import Role
 from models.maintenance import Maintenance, MaintenanceUpdate
 
 router = APIRouter()
 
 
-@router.get("/", response_description="List all maintenances", response_model=List[Maintenance])
+@router.get("/", response_description="List all maintenances", response_model=List[Maintenance],
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenances(request: Request):
     maintenances = list(request.app.database['Maintenance'].find(limit=1000))
     return maintenances
 
 
-@router.get("/{id}", response_description="Show a maintenance", response_model=Maintenance)
+@router.get("/{id}", response_description="Show a maintenance", response_model=Maintenance,
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenance(request: Request, id: str):
     maintenance = request.app.database['Maintenance'].find_one(
         {"_id": id}
@@ -28,7 +31,8 @@ def get_maintenance(request: Request, id: str):
     return maintenance
 
 
-@router.post("/", response_model=Maintenance)
+@router.post("/", response_model=Maintenance, description="Must be role employee",
+             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def add_maintenance(request: Request, maintenance: Maintenance = Body(...)):
     maintenance = jsonable_encoder(maintenance)
     maintenance['_id'] = str(uuid.uuid4())
@@ -39,7 +43,8 @@ def add_maintenance(request: Request, maintenance: Maintenance = Body(...)):
     return created_maintenance
 
 
-@router.put("/{id}", response_description="Update a maintenance", response_model=MaintenanceUpdate)
+@router.put("/{id}", response_description="Update a maintenance", response_model=MaintenanceUpdate,
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def update_maintenance(request: Request, id: str, maintenance: MaintenanceUpdate = Body(...)):
     maintenance = {k: v for k, v in maintenance.model_dump().items() if v is not None}
 
@@ -55,8 +60,9 @@ def update_maintenance(request: Request, id: str, maintenance: MaintenanceUpdate
     return JSONResponse(content={"detail": f"Maintenance {id} not found"}, status_code=404)
 
 
-@router.delete("/{id}", response_description="Delete a maintenance")
-def delete_maintenance(request: Request, id: str, response: Response):
+@router.delete("/{id}", response_description="Delete a maintenance",
+               description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+def delete_maintenance(request: Request, id: str):
     deleted_maintenance = request.app.database['Maintenance'].delete_one(
         {"_id": id}
     )
@@ -65,7 +71,8 @@ def delete_maintenance(request: Request, id: str, response: Response):
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.get("/car/{car_id}", response_description="Show maintenances of a car")
+@router.get("/car/{car_id}", response_description="Show maintenances of a car",
+            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenances_of_car(request: Request, car_id: str):
     maintenances = list(request.app.database['Maintenance'].find(
         {"car_id": car_id},
