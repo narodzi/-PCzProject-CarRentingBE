@@ -29,8 +29,26 @@ def read_rental(request: Request, id: str):
 
 
 @router.post("/", response_model=Rental)
-def add_rental(request: Request, rental: UpdateRental = Body(...)):
+def add_rental(request: Request, rental: RentalUpdate = Body(...)):
     rental = jsonable_encoder(rental)
+
+    car = request.app.database['Cars'].find_one(
+        {"_id": rental.car_id}
+    )
+
+    if car['available'] == false:
+        return JSONResponse(content={"detail": f"Car {rental.car_id} is not available"}, status_code=400)
+
+    user = request.app.database['Users'].find_one(
+        {"_id": rental.user_id}
+    )
+
+    price = car['price'] * (rental.end_date - rental.start_date).days
+
+    if user['wallet_balance'] < price:
+        return JSONResponse(content={"detail": f"User {rental.user_id} does not have sufficient balance"},
+                            status_code=400)
+
     rental['_id'] = str(uuid.uuid4())
     new_rental = request.app.database['Rental'].insert_one(rental)
     created_rental = request.app.database['Rental'].find_one(

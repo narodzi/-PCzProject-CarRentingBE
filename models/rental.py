@@ -32,6 +32,7 @@ class Rental(BaseModel):
 
 class RentalUpdate(BaseModel):
     car_id: str = Field(...)
+    user_id: str = Field(...)
     start_date: str = Field(...)
     end_date: str = Field(...)
     price_overall: int = Field(...)
