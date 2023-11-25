@@ -66,10 +66,10 @@ def delete_user(request: Request, id: str):
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.put("/{id}/subtractMoney", description="Must be role employee or the same user",
-            response_description="Subtract money to the user")
+@router.put("/{id}/subtractMoney", description="Must be role employee",
+            response_description="Subtract money to the user",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def subtract_money(request: Request, id: str, amount: float):
-    user_access(request, id)
     user = request.app.database['Users'].find_one(
         {"_id": id}
     )
