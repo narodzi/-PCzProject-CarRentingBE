@@ -118,11 +118,19 @@ def get_rentals_of_user(request: Request, user_id: str):
              response_description="Rental canceled successfully",
              status_code=HTTP_204_NO_CONTENT)
 def cancel_rental(request: Request, rental_id: str):
-    rental = request.app.database['Rental'].find_one(
+    rental_dict = request.app.database['Rental'].find_one(
         {"_id": rental_id}
     )
-    user_access(request, rental['user_id'])
+    if not rental_dict:
+        return JSONResponse(content={"detail": f"Rental {rental_id} does not exist"}, status_code=404)
+    rental = Rental.from_dict(rental_dict)
+    user_access(request, rental.user_id)
+    if rental.is_canceled:
+        return JSONResponse(content={"detail": f"Rental {rental_id} already canceled"}, status_code=400)
     request.app.database['Rental'].update_one(
         {"_id": rental_id}, {"$set": {"is_canceled": True}}
+    )
+    request.app.database['Users'].update_one(
+        {"_id": rental.user_id}, {"$inc": {"wallet_balance": rental.price_overall}}
     )
     return Response(status_code=HTTP_204_NO_CONTENT)

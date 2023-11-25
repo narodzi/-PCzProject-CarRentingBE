@@ -87,6 +87,8 @@ def get_cars_with_status(request: Request) -> list[CarWithStatus]:
             # checking if car is now rented
             car_rentals: list[Rental] = list(filter(lambda rental: rental.car_id == car.id, rentals))
             for car_rental in car_rentals:
+                if car_rental.is_canceled:
+                    continue
                 start_date = datetime.strptime(car_rental.start_date, const.DATE_FORMAT)
                 end_date = datetime.strptime(car_rental.end_date, const.DATE_FORMAT)
                 if start_date <= datetime.now() <= end_date:
