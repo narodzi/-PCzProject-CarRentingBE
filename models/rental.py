@@ -14,6 +14,10 @@ class Rental(BaseModel):
     is_canceled: bool = Field(...)
     penalty: Decimal = Field(...)
 
+    @classmethod
+    def from_dict(cls, car_dict: dict):
+        return cls(**car_dict)
+
     class Config:
         allow_population_by_field_name = True
         schema_extra = {

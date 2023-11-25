@@ -1,4 +1,7 @@
+from dataclasses import dataclass
+
 from pydantic import BaseModel, Field
+from enum import Enum
 
 
 class Car(BaseModel):
@@ -18,6 +21,10 @@ class Car(BaseModel):
     available: bool = Field(...)
     image_url: str = Field(...)
     type: str = Field(...)
+
+    @classmethod
+    def from_dict(cls, car_dict: dict):
+        return cls(**car_dict)
 
     class Config:
         allow_population_by_field_name = True
@@ -58,3 +65,34 @@ class CarUpdate(BaseModel):
     available: bool = Field(...)
     image_url: str = Field(...)
     type: str = Field(...)
+
+
+class CarStatus(str, Enum):
+    """
+    Available roles
+    """
+    AVAILABLE = "available"
+    OFF = "off"
+    RENTED = "rented"
+
+
+@dataclass
+class CarWithStatus():
+    image_url: str
+    id: str
+    type: str
+    brand: str
+    model: str
+    fuel_type: str
+    gearbox: str
+    production_year: int
+    price: int
+    available: bool
+    status: CarStatus
+
+    @classmethod
+    def from_car(cls, car: Car, status: CarStatus):
+        fields = {field: getattr(car, field) for field in car.__annotations__.keys()
+                  if field in cls.__annotations__.keys()}
+        fields['status'] = status
+        return cls(**fields)
