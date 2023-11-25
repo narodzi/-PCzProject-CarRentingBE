@@ -110,3 +110,19 @@ def get_rentals_of_user(request: Request, user_id: str):
         limit=1000
     ))
     return rentals
+
+
+@router.post("/cancel/{rental_id}",
+             summary='Cancel rental',
+             description="Must be role employee or the same user",
+             response_description="Rental canceled successfully",
+             status_code=HTTP_204_NO_CONTENT)
+def cancel_rental(request: Request, rental_id: str):
+    rental = request.app.database['Rental'].find_one(
+        {"_id": rental_id}
+    )
+    user_access(request, rental['user_id'])
+    request.app.database['Rental'].update_one(
+        {"_id": rental_id}, {"$set": {"is_canceled": True}}
+    )
+    return Response(status_code=HTTP_204_NO_CONTENT)
