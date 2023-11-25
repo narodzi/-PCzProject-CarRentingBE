@@ -1,13 +1,17 @@
 import uuid
+from datetime import datetime, date
 
+import isodate
 from fastapi import APIRouter, Request, Response, Body, status, Depends
 
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_204_NO_CONTENT
 from auth.auth import role_access
+from const import const
 from const.roles import Role
-from models.car import Car, CarUpdate
+from models.car import Car, CarUpdate, CarWithStatus, CarStatus
+from models.rental import Rental
 
 router = APIRouter()
 
@@ -67,19 +71,29 @@ def delete_car(request: Request, id: str):
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.get("/limited/")
-def get_cars(request: Request, count: int, filtered: str):
-    if filtered == "naprawa":
-        maintenances = list(request.app.database['Maintenance'].find(limit=count))
-        car_ids = [maintenance['car_id'] for maintenance in maintenances]
-        cars = list(request.app.database['Cars'].find({"_id": {"$in": car_ids}}))
-        return cars
-    elif filtered == "wypozyczone":
-        rentals = list(request.app.database['Rental'].find(limit=count))
-        car_ids = [rental['car_id'] for rental in rentals]
-        cars = list(request.app.database['Cars'].find({"_id": {"$in": car_ids}}))
-        return cars
-    elif filtered == "wszystkie":
-        cars = list(request.app.database['Cars'].find(limit=count))
-        return cars
-    return JSONResponse(content={"Not found"}, status_code=404)
+@router.get("/with_status/",
+            response_description="All cars with necessary information and status",
+            description="Must be role employee",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+def get_cars_with_status(request: Request) -> list[CarWithStatus]:
+    rentals = list(map(Rental.from_dict, request.app.database['Rental'].find()))
+    cars = list(map(Car.from_dict, request.app.database['Cars'].find()))
+    cars_with_status = []
+
+    for car in cars:
+        # checking if car is not available
+        car_with_status = CarWithStatus.from_car(car, CarStatus.OFF)
+        if car.available:
+            # checking if car is now rented
+            car_rentals: list[Rental] = list(filter(lambda rental: rental.car_id == car.id, rentals))
+            for car_rental in car_rentals:
+                start_date = datetime.strptime(car_rental.start_date, const.DATE_FORMAT)
+                end_date = datetime.strptime(car_rental.end_date, const.DATE_FORMAT)
+                if start_date <= datetime.now() <= end_date:
+                    car_with_status.status = CarStatus.RENTED
+                    break
+            # if none of these conditions were met the car is available
+            else:
+                car_with_status.status = CarStatus.AVAILABLE
+        cars_with_status.append(car_with_status)
+    return cars_with_status
