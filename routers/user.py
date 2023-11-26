@@ -12,7 +12,7 @@ router = APIRouter()
 @router.get("/", response_description="List all users", description="Must be role employee",
             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_users(request: Request):
-    users = list(request.app.database['Users'].find(limit=1000))
+    users = list(request.app.database['Users'].find())
     return users
 
 

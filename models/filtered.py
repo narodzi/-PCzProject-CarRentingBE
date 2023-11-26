@@ -15,7 +15,7 @@ class RentalSearchResult(BaseModel):
     color: str = Field(...)
     production_year: int = Field(...)
     fuel_consumption: float = Field(...)
-    price_overall: float = Field(...)
+    price_overall: int = Field(...)
 
 
 class RentalSearch(BaseModel):
@@ -30,5 +30,5 @@ class RentalSearch(BaseModel):
     number_of_seats: int | None = Field(None)
     number_of_doors: int | None = Field(None)
     minimal_trunk_size: int | None = Field(None)
-    minimal_price: float | None = Field(None)
-    maximal_price: float | None = Field(None)
+    minimal_price: int | None = Field(None)
+    maximal_price: int | None = Field(None)

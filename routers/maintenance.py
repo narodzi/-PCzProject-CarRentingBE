@@ -16,7 +16,7 @@ router = APIRouter()
 @router.get("/", response_description="List all maintenances", response_model=List[Maintenance],
             description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenances(request: Request):
-    maintenances = list(request.app.database['Maintenance'].find(limit=1000))
+    maintenances = list(request.app.database['Maintenance'].find())
     return maintenances
 
 
@@ -75,7 +75,6 @@ def delete_maintenance(request: Request, id: str):
             description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenances_of_car(request: Request, car_id: str):
     maintenances = list(request.app.database['Maintenance'].find(
-        {"car_id": car_id},
-        limit=1000
+        {"car_id": car_id}
     ))
     return maintenances
