@@ -76,8 +76,8 @@ def delete_car(request: Request, id: str):
             description="Must be role employee",
             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_cars_with_status(request: Request) -> list[CarWithStatus]:
-    rentals = list(map(Rental.from_dict, request.app.database['Rental'].find()))
-    cars = list(map(Car.from_dict, request.app.database['Cars'].find()))
+    rentals = list(map(Rental.model_validate, request.app.database['Rental'].find()))
+    cars = list(map(Car.model_validate, request.app.database['Cars'].find()))
     cars_with_status = []
 
     for car in cars:

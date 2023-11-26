@@ -69,7 +69,7 @@ def delete_user(request: Request, id: str):
 @router.put("/{id}/subtractMoney", description="Must be role employee",
             response_description="Subtract money to the user",
             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
-def subtract_money(request: Request, id: str, amount: float):
+def subtract_money(request: Request, id: str, amount: int):
     user = request.app.database['Users'].find_one(
         {"_id": id}
     )
@@ -86,7 +86,7 @@ def subtract_money(request: Request, id: str, amount: float):
 
 @router.put("/{id}/addMoney", description="Must be role employee or the same user",
             response_description="Adding money to the user")
-def add_money(request: Request, id: str, amount: float):
+def add_money(request: Request, id: str, amount: int):
     user_access(request, id)
     user = request.app.database['Users'].find_one(
         {"_id": id}
