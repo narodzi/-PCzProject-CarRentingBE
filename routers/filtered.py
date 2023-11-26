@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request, Body
 
 from const import const
 from models.car import Car
-from models.filtered import RentalSearch, RentalSearchResult
+from models.filtered import RentalSearch, RentalSearchResult, FilterParameters
 
 from models.rental import Rental
 
@@ -71,3 +71,17 @@ def get_car(request: Request, params: RentalSearch = Body(...)) -> list[RentalSe
         for car in filtered_cars
     ]
     return result_dto_list
+
+
+@router.get("/parameters",
+            summary="Returns all predefined filter parameters",
+            response_description="All filter parameters")
+def get_filter_parameters(request: Request) -> FilterParameters:
+    cars = list(map(Car.model_validate, request.app.database['Cars'].find()))
+    return FilterParameters(
+        cars_brands=list(sorted(set(map(lambda car: car.brand, cars)))),
+        number_of_seats=list(sorted(set(map(lambda car: car.number_of_seats, cars)))),
+        gearboxes=list(sorted(set(map(lambda car: car.gearbox, cars)))),
+        fuel_types=list(sorted(set(map(lambda car: car.fuel_type, cars)))),
+        number_of_doors=list(sorted(set(map(lambda car: car.number_of_doors, cars))))
+    )

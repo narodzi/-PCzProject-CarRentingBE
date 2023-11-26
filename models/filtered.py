@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from pydantic import BaseModel, Field
 
 
@@ -32,3 +34,12 @@ class RentalSearch(BaseModel):
     minimal_trunk_size: int | None = Field(None)
     minimal_price: int | None = Field(None)
     maximal_price: int | None = Field(None)
+
+
+@dataclass
+class FilterParameters:
+    cars_brands: list[str]
+    number_of_seats: list[int]
+    gearboxes: list[str]
+    fuel_types: list[str]
+    number_of_doors: list[int]

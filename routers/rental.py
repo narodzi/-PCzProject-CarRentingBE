@@ -1,18 +1,16 @@
 import uuid
 from datetime import datetime
-from decimal import Decimal
 from typing import List
 
-from fastapi import APIRouter, Request, Response, Body, status, Depends
+from fastapi import APIRouter, Request, Response, Body, Depends
 
-from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_204_NO_CONTENT
 from auth.auth import role_access, user_access
 from const import const
 from const.roles import Role
 from models.car import Car
-from models.rental import Rental, RentalUpdate, RentalAdd
+from models.rental import Rental, RentalAdd
 
 from models.user import User
 from services.keycloak import Keycloak
