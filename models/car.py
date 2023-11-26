@@ -22,10 +22,6 @@ class Car(BaseModel):
     image_url: str = Field(...)
     type: str = Field(...)
 
-    @classmethod
-    def from_dict(cls, car_dict: dict):
-        return cls(**car_dict)
-
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -77,7 +73,7 @@ class CarStatus(str, Enum):
 
 
 @dataclass
-class CarWithStatus():
+class CarWithStatus:
     image_url: str
     id: str
     type: str

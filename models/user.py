@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 class User(BaseModel):
     id: str = Field(alias='_id')
     licence_number: str = Field(...)
-    wallet_balance: Decimal = Field(...)
+    wallet_balance: int = Field(...)
     country: str = Field(...)
     city: str = Field(...)
     postal_code: str = Field(...)
@@ -34,7 +34,7 @@ class User(BaseModel):
 
 class UserUpdate(BaseModel):
     licence_number: str = Field(...)
-    wallet_balance: Decimal = Field(...)
+    wallet_balance: int = Field(...)
     country: str = Field(...)
     city: str = Field(...)
     postal_code: str = Field(...)

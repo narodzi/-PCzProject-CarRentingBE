@@ -12,11 +12,7 @@ class Rental(BaseModel):
     end_date: str = Field(...)
     price_overall: int = Field(...)
     is_canceled: bool = Field(...)
-    penalty: Decimal = Field(...)
-
-    @classmethod
-    def from_dict(cls, car_dict: dict):
-        return cls(**car_dict)
+    penalty: int = Field(...)
 
     class Config:
         allow_population_by_field_name = True
@@ -42,3 +38,9 @@ class RentalUpdate(BaseModel):
     price_overall: int = Field(...)
     is_canceled: bool = Field(...)
     penalty: int = Field(...)
+
+
+class RentalAdd(BaseModel):
+    car_id: str = Field(...)
+    start_date: str = Field(...)
+    end_date: str = Field(...)
