@@ -14,8 +14,6 @@ from const.roles import Role
 from models.car import Car
 from models.rental import Rental, RentalUpdate, RentalAdd
 
-from isodate import parse_datetime
-
 from models.user import User
 from services.keycloak import Keycloak
 
@@ -25,7 +23,7 @@ router = APIRouter()
 @router.get("/", response_description="List all rentals", response_model=List[Rental],
             description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def read_rentals(request: Request):
-    rentals = list(request.app.database['Rental'].find(limit=1000))
+    rentals = list(request.app.database['Rental'].find())
     return rentals
 
 
@@ -89,7 +87,6 @@ def add_rental(request: Request, rental_add: RentalAdd = Body(...)):
         'end_date': rental_add.end_date,
         'price_overall': price_overall,
         'is_canceled': False,
-        'penalty': 0
     })
 
     request.app.database['Rental'].insert_one(rental_to_add.model_dump(by_alias=True))
@@ -97,23 +94,6 @@ def add_rental(request: Request, rental_add: RentalAdd = Body(...)):
         {"_id": rental_to_add.id}
     )
     return created_rental
-
-
-@router.put("/{id}", response_description="Update a rental", response_model=RentalUpdate,
-            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
-def update_rental(request: Request, id: str, rental: RentalUpdate = Body(...)):
-    rental = {k: v for k, v in rental.dict().items() if v is not None}
-
-    update_result = request.app.database['Rental'].update_one(
-        {"_id": id}, {"$set": rental}
-    )
-
-    if update_result.modified_count == 1:
-        update_result = request.app.database['Rental'].find_one({'_id': id})
-        return update_result
-    if update_result.matched_count == 1:
-        return JSONResponse(content={"detail": f"Rental {id} has not been updated"}, status_code=400)
-    return JSONResponse(content={"detail": f"Rental {id} not found"}, status_code=404)
 
 
 @router.delete("/{id}", response_description="Delete a rental",
@@ -131,8 +111,7 @@ def delete_rental(request: Request, id: str, response: Response):
             description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_rentals_of_car(request: Request, car_id: str):
     rentals = list(request.app.database['Rental'].find(
-        {"car_id": car_id},
-        limit=1000
+        {"car_id": car_id}
     ))
     return rentals
 
@@ -143,7 +122,6 @@ def get_rentals_of_user(request: Request, user_id: str):
     user_access(request, user_id)
     rentals = list(request.app.database['Rental'].find(
         {"user_id": user_id},
-        limit=1000
     ))
     return rentals
 

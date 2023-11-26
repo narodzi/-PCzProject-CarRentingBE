@@ -18,7 +18,7 @@ router = APIRouter()
 
 @router.get("/", response_description="List all cars")
 def get_cars(request: Request):
-    cars = list(request.app.database['Cars'].find(limit=1000))
+    cars = list(request.app.database['Cars'].find())
     return cars
 
 
