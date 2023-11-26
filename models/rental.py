@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 import bson
 from pydantic import BaseModel, Field
 
