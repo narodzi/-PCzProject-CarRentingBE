@@ -100,11 +100,12 @@ def add_money(request: Request, id: str, amount: int):
     return {"message": f"Successfully added {amount} to user's wallet. New balance: {user['wallet_balance']}"}
 
 
-@router.get("/mongo_exist/",
+@router.get("/mongo_exist/{user_id}",
             summary="Checks if current user exist in mongo",
+            description="Must be role employee or the same user",
             response_description="204 if exists. 404 if not")
-def is_user_data_in_mongo(request: Request):
-    user_id = Keycloak(request).get_user_id()
+def is_user_data_in_mongo(request: Request, user_id: str):
+    user_access(request, user_id)
     user = request.app.database['Users'].find_one(
         {"_id": user_id}
     )
