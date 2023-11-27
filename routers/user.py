@@ -4,7 +4,7 @@ from starlette.responses import JSONResponse
 from starlette.status import HTTP_204_NO_CONTENT
 from auth.auth import role_access, user_access, get_bearer_token
 from const.roles import Role
-from models.user import User, UserUpdate
+from models.user import User, UserUpdate, UserDetails
 from services.keycloak import Keycloak
 
 router = APIRouter()
@@ -112,3 +112,32 @@ def is_user_data_in_mongo(request: Request, user_id: str):
     if user:
         return Response(status_code=HTTP_204_NO_CONTENT)
     return JSONResponse(content={"detail": f"User {user_id} does not yet exist"}, status_code=404)
+
+
+@router.get("/details/", summary="Gets full user info for logged in user", response_description="User info")
+def get_user_details(request: Request) -> UserDetails:
+    token_info = Keycloak(request).get_token_info()
+    user_id = token_info['sub']
+    first_name = token_info['given_name']
+    last_name = token_info['family_name']
+    email = token_info['email']
+    username = token_info['preferred_username']
+    user = request.app.database['Users'].find_one(
+        {"_id": user_id}
+    )
+    return UserDetails(
+        user_id=user_id,
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        username=username,
+        licence_number=user['licence_number'],
+        wallet_balance=user['wallet_balance'],
+        country=user['country'],
+        city=user['city'],
+        street=user['street'],
+        postal_code=user['postal_code'],
+        house_number=user['house_number'],
+        apartment_number=user['apartment_number'],
+        phone_number=user['phone_number'],
+    )

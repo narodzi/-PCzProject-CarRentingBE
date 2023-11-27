@@ -17,15 +17,15 @@ class Keycloak:
         :param request: request to get the token from
         :return: token without the "Bearer " prefix
         """
-        if os.getenv("DEBUG") == "1":
-            return ""
         authorization_header = request.headers.get("authorization")
         if authorization_header:
             return authorization_header.replace("Bearer ", "")
+        if os.getenv("DEBUG") == "1":
+            return ""
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='No access token')
 
-    def get_user_id(self):
+    def get_token_info(self):
         jwt_token = self._get_bearer_token(self._request)
         options = {"verify_signature": False}
         decoded_data = jwt.decode(jwt_token, algorithms=["RS256"], options=options)
-        return decoded_data["sub"]
+        return decoded_data
