@@ -42,7 +42,7 @@ def add_rental(request: Request, rental_add: RentalAdd = Body(...)):
         {"_id": rental_add.car_id}
     )
     car = Car.model_validate(car_dict)
-    user_id = Keycloak(request).get_user_id()
+    user_id = rental_add.user_id
     user_access(request, user_id)
     if not car.available:
         return JSONResponse(content={"detail": f"Car {rental_add.car_id} is not available"}, status_code=400)

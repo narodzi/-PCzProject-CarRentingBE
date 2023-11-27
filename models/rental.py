@@ -25,6 +25,7 @@ class RentalUpdate(BaseModel):
 
 
 class RentalAdd(BaseModel):
+    user_id: str = Field(...)
     car_id: str = Field(...)
     start_date: str = Field(...)
     end_date: str = Field(...)
