@@ -99,3 +99,25 @@ def get_cars_with_status(request: Request) -> list[CarWithStatus]:
                 car_with_status.status = CarStatus.AVAILABLE
         cars_with_status.append(car_with_status)
     return cars_with_status
+
+
+@router.put("/{car_id}/set_status/available",
+            summary="Set car status to available",
+            description="Must be role employee",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+def set_car_status(request: Request, car_id: str):
+    request.app.database['Cars'].update_one(
+        {"_id": car_id}, {"$set": {"available": True}}
+    )
+    return Response(status_code=HTTP_204_NO_CONTENT)
+
+
+@router.put("/{car_id}/set_status/unavailable",
+            summary="Set car status to unavailable",
+            description="Must be role employee",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+def set_car_status(request: Request, car_id: str):
+    request.app.database['Cars'].update_one(
+        {"_id": car_id}, {"$set": {"available": False}}
+    )
+    return Response(status_code=HTTP_204_NO_CONTENT)
