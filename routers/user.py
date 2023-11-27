@@ -5,6 +5,7 @@ from starlette.status import HTTP_204_NO_CONTENT
 from auth.auth import role_access, user_access, get_bearer_token
 from const.roles import Role
 from models.user import User, UserUpdate
+from services.keycloak import Keycloak
 
 router = APIRouter()
 
@@ -97,3 +98,16 @@ def add_money(request: Request, id: str, amount: int):
         {"$set": {"wallet_balance": user["wallet_balance"]}}
     )
     return {"message": f"Successfully added {amount} to user's wallet. New balance: {user['wallet_balance']}"}
+
+
+@router.get("/mongo_exist/",
+            summary="Checks if current user exist in mongo",
+            response_description="204 if exists. 404 if not")
+def is_user_data_in_mongo(request: Request):
+    user_id = Keycloak(request).get_user_id()
+    user = request.app.database['Users'].find_one(
+        {"_id": user_id}
+    )
+    if user:
+        return Response(status_code=HTTP_204_NO_CONTENT)
+    return JSONResponse(content={"detail": f"User {user_id} does not yet exist"}, status_code=404)
