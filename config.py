@@ -1,2 +1,2 @@
-MONGO_URL = 'mongodb+srv://kacperkukulka4:WPpgzdbcDVCkW13z@carrenting.0bneluh.mongodb.net/'
+MONGO_URL = ''
 DATABASE_NAME = 'CarRenting'
