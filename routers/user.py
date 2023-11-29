@@ -30,8 +30,7 @@ def get_user(request: Request, id: str):
 
 @router.post("/", response_description="Add a user")
 def add_user(request: Request, user: User = Body(...)):
-    # TODO: Integrate this step with keycloak creating user
-    user = user.dict()
+    user = user.model_dump(by_alias=True)
     new_user = request.app.database['Users'].insert_one(user)
     created_user = request.app.database['Users'].find_one(
         {"_id": new_user.inserted_id}
