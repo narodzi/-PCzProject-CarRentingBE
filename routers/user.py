@@ -109,8 +109,8 @@ def is_user_data_in_mongo(request: Request, user_id: str):
         {"_id": user_id}
     )
     if user:
-        return Response(status_code=HTTP_204_NO_CONTENT)
-    return JSONResponse(content={"detail": f"User {user_id} does not yet exist"}, status_code=404)
+        return user
+    return Response(status_code=HTTP_204_NO_CONTENT)
 
 
 @router.get("/details/", summary="Gets full user info for logged in user", response_description="User info")
