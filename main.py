@@ -10,7 +10,11 @@ from routers.rental import router as rental_router
 from routers.filtered import router as filtered_router
 from routers.maintenance import router as maintenance_router
 
-app = FastAPI()
+app = FastAPI(
+    title="Car Renting",
+    description="API for car renting service",
+    version="1.0.0"
+)
 
 origins = [
     "http://localhost:4200"

@@ -16,13 +16,17 @@ from models.rental import Rental
 router = APIRouter()
 
 
-@router.get("/", response_description="List all cars")
+@router.get("/",
+            summary='Get all cars',
+            response_description="All cars")
 def get_cars(request: Request):
     cars = list(request.app.database['Cars'].find())
     return cars
 
 
-@router.get("/{id}", response_description="Show a car")
+@router.get("/{id}",
+            summary='Get car',
+            response_description="Car with given id")
 def get_car(request: Request, id: str):
     car = request.app.database['Cars'].find_one(
         {"_id": id}
@@ -32,7 +36,10 @@ def get_car(request: Request, id: str):
     return car
 
 
-@router.post("/", description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.post("/",
+             summary="Add car",
+             description="Adding car to collection. Must be role employee",
+             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def add_car(request: Request, car: CarUpdate = Body(...)):
     car = jsonable_encoder(car)
     car['_id'] = str(uuid.uuid4())
@@ -43,7 +50,10 @@ def add_car(request: Request, car: CarUpdate = Body(...)):
     return created_car
 
 
-@router.put("/{id}", response_description="Update a car", description="Must be role employee",
+@router.put("/{id}",
+            summary="Update a car",
+            description="Updates a car for a given id. Must be role employee",
+            response_description="Updated car",
             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def update_car(request: Request, id: str, car: CarUpdate = Body(...)):
     car = {k: v for k, v in car.model_dump().items() if v is not None}
@@ -60,7 +70,9 @@ def update_car(request: Request, id: str, car: CarUpdate = Body(...)):
     return JSONResponse(content={"detail": f"Car {id} not found"}, status_code=404)
 
 
-@router.delete("/{id}", response_description="Delete a car", description="Must be role employee",
+@router.delete("/{id}",
+               summary="Delete a car",
+               description="Deletes a car of a given id. Must be role employee",
                dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def delete_car(request: Request, id: str):
     deleted_car = request.app.database['Cars'].delete_one(
@@ -72,6 +84,7 @@ def delete_car(request: Request, id: str):
 
 
 @router.get("/with_status/",
+            summary="Get cars with status",
             response_description="All cars with necessary information and status",
             description="Must be role employee",
             dependencies=[Depends(role_access([Role.EMPLOYEE]))])

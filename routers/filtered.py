@@ -11,7 +11,9 @@ from models.rental import Rental
 router = APIRouter()
 
 
-@router.post("/", response_description="Show a car")
+@router.post("/",
+             summary="Get cars filtered by parameters",
+             response_description="Cars filtered by parameters")
 def get_car(request: Request, params: RentalSearch = Body(...)) -> list[RentalSearchResult]:
     query = {}
 
@@ -74,8 +76,8 @@ def get_car(request: Request, params: RentalSearch = Body(...)) -> list[RentalSe
 
 
 @router.get("/parameters",
-            summary="Returns all predefined filter parameters",
-            response_description="All filter parameters")
+            summary="Return predefined parameters",
+            response_description="All filter parameters for existing cars")
 def get_filter_parameters(request: Request) -> FilterParameters:
     cars = list(map(Car.model_validate, request.app.database['Cars'].find()))
     return FilterParameters(

@@ -13,20 +13,27 @@ from models.car import Car
 from models.rental import Rental, RentalAdd
 
 from models.user import User
-from services.keycloak import Keycloak
 
 router = APIRouter()
 
 
-@router.get("/", response_description="List all rentals", response_model=List[Rental],
-            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.get("/",
+            summary="Get all rentals",
+            response_model=List[Rental],
+            description="Get all rentals. Must be role employee",
+            response_description="All rentals",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def read_rentals(request: Request):
     rentals = list(request.app.database['Rental'].find())
     return rentals
 
 
-@router.get("/{id}", response_description="Show a rental", response_model=Rental,
-            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.get("/{id}",
+            summary="Get a rental",
+            response_model=Rental,
+            description="Get rental of a given id. Must be role employee",
+            response_description="Rental of a given id",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def read_rental(request: Request, id: str):
     rental = request.app.database['Rental'].find_one(
         {"_id": id}
@@ -36,7 +43,11 @@ def read_rental(request: Request, id: str):
     return rental
 
 
-@router.post("/", response_model=Rental, description="Must be role employee or the same user")
+@router.post("/",
+             summary="Add new rental",
+             response_model=Rental,
+             description="Adding new rental. Must be role employee or the same user",
+             response_description="Created rental")
 def add_rental(request: Request, rental_add: RentalAdd = Body(...)):
     car_dict = request.app.database['Cars'].find_one(
         {"_id": rental_add.car_id}
@@ -99,8 +110,10 @@ def add_rental(request: Request, rental_add: RentalAdd = Body(...)):
     return created_rental
 
 
-@router.delete("/{id}", response_description="Delete a rental",
-               description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.delete("/{id}",
+               response_description="Delete a rental",
+               description="Delete rental of a given id. Must be role employee",
+               dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def delete_rental(request: Request, id: str, response: Response):
     deleted_rental = request.app.database['Rental'].delete_one(
         {"_id": id}
@@ -110,8 +123,11 @@ def delete_rental(request: Request, id: str, response: Response):
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.get("/car/{car_id}", response_description="Show rentals of a car",
-            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.get("/car/{car_id}",
+            summary="Get rentals of given car",
+            description="Get rentals for a car of a given id. Must be role employee",
+            response_description="Rentals of a given car",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_rentals_of_car(request: Request, car_id: str):
     rentals = list(request.app.database['Rental'].find(
         {"car_id": car_id}
@@ -119,8 +135,10 @@ def get_rentals_of_car(request: Request, car_id: str):
     return rentals
 
 
-@router.get("/user/{user_id}", description="Must be role employee or the same user",
-            response_description="Show rentals of a user")
+@router.get("/user/{user_id}",
+            summary="Get rentals of given user",
+            description="Get rentals for user of given user id. Must be role employee or the same user",
+            response_description="Rentals of a user")
 def get_rentals_of_user(request: Request, user_id: str):
     user_access(request, user_id)
     rentals = list(request.app.database['Rental'].find(
@@ -131,8 +149,8 @@ def get_rentals_of_user(request: Request, user_id: str):
 
 @router.post("/cancel/{rental_id}",
              summary='Cancel rental',
-             description="Must be role employee or the same user",
-             response_description="Rental canceled successfully",
+             description="Cancel rental of a given id. Must be role employee or the same user",
+             response_description="Whether the rental was canceled successfully",
              status_code=HTTP_204_NO_CONTENT)
 def cancel_rental(request: Request, rental_id: str):
     rental_dict = request.app.database['Rental'].find_one(

@@ -13,15 +13,23 @@ from models.maintenance import Maintenance, MaintenanceUpdate
 router = APIRouter()
 
 
-@router.get("/", response_description="List all maintenances", response_model=List[Maintenance],
-            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.get("/",
+            summary="Get all maintenances",
+            response_model=List[Maintenance],
+            response_description="All maintenances",
+            description="Get all maintanances. Must be role employee",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenances(request: Request):
     maintenances = list(request.app.database['Maintenance'].find())
     return maintenances
 
 
-@router.get("/{id}", response_description="Show a maintenance", response_model=Maintenance,
-            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.get("/{id}",
+            summary="Show maintenance",
+            response_model=Maintenance,
+            response_description="Maintenance of a given id",
+            description="Shows maintenance for a given id. Must be role employee",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenance(request: Request, id: str):
     maintenance = request.app.database['Maintenance'].find_one(
         {"_id": id}
@@ -31,7 +39,11 @@ def get_maintenance(request: Request, id: str):
     return maintenance
 
 
-@router.post("/", response_model=Maintenance, description="Must be role employee",
+@router.post("/",
+             response_model=Maintenance,
+             summary="Add new maintenance",
+             description="Adds new maintenance. Must be role employee",
+             response_description="Created new maintenance",
              dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def add_maintenance(request: Request, maintenance: Maintenance = Body(...)):
     maintenance = jsonable_encoder(maintenance)
@@ -43,8 +55,12 @@ def add_maintenance(request: Request, maintenance: Maintenance = Body(...)):
     return created_maintenance
 
 
-@router.put("/{id}", response_description="Update a maintenance", response_model=MaintenanceUpdate,
-            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.put("/{id}",
+            summary="Update a maintenance",
+            response_model=MaintenanceUpdate,
+            description="Update maintenance of a given id. Must be role employee",
+            response_description="Updated maintenance",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def update_maintenance(request: Request, id: str, maintenance: MaintenanceUpdate = Body(...)):
     maintenance = {k: v for k, v in maintenance.model_dump().items() if v is not None}
 
@@ -60,8 +76,10 @@ def update_maintenance(request: Request, id: str, maintenance: MaintenanceUpdate
     return JSONResponse(content={"detail": f"Maintenance {id} not found"}, status_code=404)
 
 
-@router.delete("/{id}", response_description="Delete a maintenance",
-               description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.delete("/{id}",
+               summary="Delete a maintenance",
+               description="Deletes maintenance of a given id. Must be role employee",
+               dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def delete_maintenance(request: Request, id: str):
     deleted_maintenance = request.app.database['Maintenance'].delete_one(
         {"_id": id}
@@ -71,8 +89,10 @@ def delete_maintenance(request: Request, id: str):
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.get("/car/{car_id}", response_description="Show maintenances of a car",
-            description="Must be role employee", dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+@router.get("/car/{car_id}",
+            summary="Get maintenances of a car",
+            description="Get maintenances for a car of a given id. Must be role employee",
+            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_maintenances_of_car(request: Request, car_id: str):
     maintenances = list(request.app.database['Maintenance'].find(
         {"car_id": car_id}
