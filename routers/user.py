@@ -1,8 +1,7 @@
-from uuid import UUID
-from fastapi import APIRouter, Request, Response, Body, status, HTTPException, Depends
+from fastapi import APIRouter, Request, Response, Body, HTTPException, Depends
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_204_NO_CONTENT
-from auth.auth import role_access, user_access, get_bearer_token
+from auth.auth import role_access, user_access
 from const.roles import Role
 from models.user import User, UserUpdate, UserDetails
 from services.keycloak import Keycloak
@@ -10,14 +9,20 @@ from services.keycloak import Keycloak
 router = APIRouter()
 
 
-@router.get("/", response_description="List all users", description="Must be role employee",
+@router.get("/",
+            summary="Get all users",
+            description="Get all users. Must be role employee",
+            response_description="All users",
             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def get_users(request: Request):
     users = list(request.app.database['Users'].find())
     return users
 
 
-@router.get("/{id}", description="Must be role employee or the same user", response_description="Show a user")
+@router.get("/{id}",
+            summary="Get user",
+            description="Get user of a given id. Must be role employee or the same user",
+            response_description="User of a given id")
 def get_user(request: Request, id: str):
     user_access(request, id)
     user = request.app.database['Users'].find_one(
@@ -28,7 +33,10 @@ def get_user(request: Request, id: str):
     return user
 
 
-@router.post("/", response_description="Add a user")
+@router.post("/",
+             summary="Add new user",
+             description="Add new user",
+             response_description="Created user")
 def add_user(request: Request, user: User = Body(...)):
     user = user.model_dump(by_alias=True)
     new_user = request.app.database['Users'].insert_one(user)
@@ -38,7 +46,10 @@ def add_user(request: Request, user: User = Body(...)):
     return created_user
 
 
-@router.put("/{id}", response_description="Update a user", description="Must be role employee",
+@router.put("/{id}",
+            summary="Update a user",
+            response_description="Updated user",
+            description="Update a user of a given id. Must be role employee",
             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def update_user(request: Request, id: str, user: UserUpdate = Body(...)):
     user_data = user.dict(exclude_unset=True)
@@ -55,7 +66,9 @@ def update_user(request: Request, id: str, user: UserUpdate = Body(...)):
     return JSONResponse(content={"detail": f"User {id} not found"}, status_code=404)
 
 
-@router.delete("/{id}", response_description="Delete a user", description="Must be role employee",
+@router.delete("/{id}",
+               summary="Delete a user",
+               description="Must be role employee",
                dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def delete_user(request: Request, id: str):
     deleted_user = request.app.database['Users'].delete_one(
@@ -66,8 +79,9 @@ def delete_user(request: Request, id: str):
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.put("/{id}/subtractMoney", description="Must be role employee",
-            response_description="Subtract money to the user",
+@router.put("/{id}/subtractMoney",
+            summary="Subtract money of a user",
+            description="Subtract money for a user of a given id. Must be role employee",
             dependencies=[Depends(role_access([Role.EMPLOYEE]))])
 def subtract_money(request: Request, id: str, amount: int):
     user = request.app.database['Users'].find_one(
@@ -84,8 +98,9 @@ def subtract_money(request: Request, id: str, amount: int):
         raise HTTPException(status_code=400, detail="Insufficient balance")
 
 
-@router.put("/{id}/addMoney", description="Must be role employee or the same user",
-            response_description="Adding money to the user")
+@router.put("/{id}/addMoney",
+            summary="Add money for a user",
+            description="Add money for a user of a given id. Must be role employee or the same user")
 def add_money(request: Request, id: str, amount: int):
     user_access(request, id)
     user = request.app.database['Users'].find_one(
@@ -113,7 +128,10 @@ def is_user_data_in_mongo(request: Request, user_id: str):
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.get("/details/", summary="Gets full user info for logged in user", response_description="User info")
+@router.get("/details/",
+            summary="Get full user info",
+            description="Gets full user info for logged in user",
+            response_description="User info")
 def get_user_details(request: Request) -> UserDetails:
     token_info = Keycloak(request).get_token_info()
     user_id = token_info['sub']
