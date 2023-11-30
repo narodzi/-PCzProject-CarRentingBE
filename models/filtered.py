@@ -42,5 +42,6 @@ class FilterParameters:
     number_of_seats: list[int]
     gearboxes: list[str]
     fuel_types: list[str]
-    number_of_doors: list[int]\
+    number_of_doors: list[int]
+    type: list[str]
     # TODO: ADD Type field here

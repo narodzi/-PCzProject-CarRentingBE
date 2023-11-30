@@ -81,6 +81,7 @@ def get_filter_parameters(request: Request) -> FilterParameters:
     return FilterParameters(
         cars_brands=list(sorted(set(map(lambda car: car.brand, cars)))),
         number_of_seats=list(sorted(set(map(lambda car: car.number_of_seats, cars)))),
+        type=list(sorted(set(map(lambda car: car.type, cars)))),
         gearboxes=list(sorted(set(map(lambda car: car.gearbox, cars)))),
         fuel_types=list(sorted(set(map(lambda car: car.fuel_type, cars)))),
         number_of_doors=list(sorted(set(map(lambda car: car.number_of_doors, cars))))

@@ -10,7 +10,7 @@ class User(BaseModel):
     street: str = Field(...)
     postal_code: str = Field(...)
     house_number: str = Field(...)
-    apartment_number: str = Field(...)
+    apartment_number: str | None = Field(None)
     phone_number: str = Field(...)
 
     class Config:
