@@ -77,6 +77,11 @@ def add_rental(request: Request, rental_add: RentalAdd = Body(...)):
     if user.wallet_balance < price_overall:
         return JSONResponse(content={"detail": f"User {user_id} does not have sufficient balance"},
                             status_code=400)
+    user.wallet_balance -= price_overall
+    request.app.database['Users'].update_one(
+        {"_id": user_id},
+        {"$set": {"wallet_balance": user.wallet_balance}}
+    )
     rental_to_add = Rental.model_validate({
         '_id': str(uuid.uuid4()),
         'car_id': rental_add.car_id,
