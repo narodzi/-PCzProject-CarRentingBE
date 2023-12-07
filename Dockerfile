@@ -1,11 +1,9 @@
 FROM python:3.11
 
-WORKDIR .
+WORKDIR /app
 
-COPY requirements.txt .
+COPY . /app
 
 RUN pip install -r requirements.txt
-
-COPY . .
 
 EXPOSE 4300

@@ -31,15 +31,15 @@ def read_rentals(request: Request):
 @router.get("/{id}",
             summary="Get a rental",
             response_model=Rental,
-            description="Get rental of a given id. Must be role employee",
-            response_description="Rental of a given id",
-            dependencies=[Depends(role_access([Role.EMPLOYEE]))])
+            description="Get rental of a given id. Must be role employee or the same user",
+            response_description="Rental of a given id")
 def read_rental(request: Request, id: str):
     rental = request.app.database['Rental'].find_one(
         {"_id": id}
     )
     if not rental:
         return JSONResponse(content={"detail": f"Rental {id} does not exist"}, status_code=404)
+    user_access(request, rental['user_id'])
     return rental
 
 
